@@ -1,19 +1,27 @@
+<?php session_start(); ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<?php 
+	require "engine/functions.php";
+	insertMeta($_GET['folder'], $_GET['page']);
+?>
 <title>Artists</title>
 <script type="text/javascript" src="engine/functions.js"></script>
-<?php require "engine/functions.php"; ?>
+<link rel="stylesheet" href="engine/style.css" type="text/css" />
 </head>
 <body>
-<table border="1" align="center" width="800">
+<table class="main">
 <tr>
-	<td style="font-size: 100px; text-align: center" colspan="2">Logo yea!</td>
+	<td>
+		<img src="img/logo.jpg" />
+	</td>
 </tr>
 <tr>
-	<td><?php include 'pages/'.basename($_GET['page']).'.php'; ?></td>
-	<td valign="top"><?php include 'elements/rightmenu.php'; ?></td>
+	<td valign="top"><?php include 'elements/topmenu.php'; ?></td>
+</tr>
+<tr>
+	<td><?php include getFolder($_GET['folder']).'/'.basename($_GET['page']).'.php'; ?></td>	
 </tr>
 </table>
 </body>

@@ -1,5 +1,8 @@
-var chordTab = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "H"];
+var durChordTab = ["C", "Cis", "D", "Dis", "E", "F", "Fis", "G", "Gis", "A", "B", "H"];
+var molChordTab = ["c", "cis", "d", "dis", "e", "f", "fis", "g", "gis", "a", "b", "h"];
 var previewMode = false;
+var text_width = -1;
+var font_size = -1;
 
 function setText(id, str){		
 	document.getElementById(id).innerHTML = str;
@@ -18,19 +21,26 @@ function insertBr(id, formName){
 function findChord(chord){
 	var i;
 	var c;
+	var n = molChordTab.length;
 	if(chord.length > 0){
-		c = chord[0];
-		if(c >= 'A' && c <= 'H' && c != 'B'){
-			for(i=0; i<chordTab.length; ++i){
-				if(c == chordTab[i]){
-					if(chord.length > 1 && chord[1] == '#'){
-						return i+1;
-					}else{
-						return i;
-					}
+		c = chord[0];		
+		for(i=0; i<n; ++i){
+			if(c === durChordTab[i]){
+				if(chord.length > 1 && chord[1] == 'i'){
+					return i+1;
+				}else{
+					return i;
 				}
 			}
-			return -1;			
+		}				
+		for(i=0; i<n; ++i){
+			if(c == molChordTab[i]){
+				if(chord.length > 1 && chord[1] == 'i'){
+					return i+1+n;
+				}else{
+					return i+n;
+				}
+			}
 		}		
 	}	
 	return -1;
@@ -41,7 +51,7 @@ function changeChords(id, change){
 	var str = document.getElementById(id).innerHTML;
 	var rows = str.split("<br>");
 	var cols, ch;
-	var i, j, k, n=chordTab.length;
+	var i, j, k, n=durChordTab.length;
 		
 	for(i=0; i<rows.length; ++i){
 		if(i>0){
@@ -52,9 +62,13 @@ function changeChords(id, change){
 			ch = cols[j];			
 			k = findChord(ch);			
 			if(k >= 0){
-				chords += chordTab[(k+change+n)%n];				
-				if(ch.split("#").length > 1){
-					chords += ch.substring(2);
+				if(k<n){				
+					chords += durChordTab[(k+change+n)%n];				
+				}else{
+					chords += molChordTab[(k+change+n)%n];
+				}
+				if(ch.split("is").length > 1){
+					chords += ch.substring(3);
 				}else{
 					chords += ch.substring(1);
 				}
@@ -65,9 +79,9 @@ function changeChords(id, change){
 	return chords;	
 }
 
-function preview(){		
-	setText("artist_view", getText("artist_edit", "text_and_chords"));
-	setText("title_view", getText("title_edit", "text_and_chords"));	
+function preview(){			
+	setText("song_view", "<b>" + getText("artist_edit", "text_and_chords") + "</b> - " +
+						 getText("title_edit", "text_and_chords"));	
 	setText("text_view", insertBr("text_edit", "text_and_chords"));
 	setText("chords_view", insertBr("chords_edit", "text_and_chords"));	
 }
@@ -86,3 +100,36 @@ function setPreview(){
 	previewMode = true;	
 	preview();
 }
+
+function resizeTable(change){
+	var step = 5;
+	if(text_width < 0){
+		text_width = parseInt(document.getElementById("text_view").style.width);
+		
+	}	
+	if(text_width + step*change  != 100-2*step && text_width + step*change != step*4){
+		text_width += change*step;
+	}
+	document.getElementById("text_view").style.width = (text_width) + "%";
+	document.getElementById("chords_view").style.width = (100-text_width) + "%";
+}
+
+function resizeFont(change){
+	var step = 2;
+	if(font_size < 0){
+		font_size = parseInt(document.getElementById("text_view").style.fontSize);
+	}		
+	if(font_size + change*step > 0){
+		font_size += change*step;
+	}
+	document.getElementById("text_view").style.fontSize = font_size + "px";
+	document.getElementById("chords_view").style.fontSize = font_size + "px";
+}
+
+function gotoEdit(song_id, artist_id){
+	window.location = "index.php?page=db&action=editsong&song_id=" + song_id + "&artist_id=" + artist_id;
+}
+function gotoDelete(song_id){
+	window.location = "index.php?folder=elements&page=deletesong&song_id=" + song_id;
+}
+
